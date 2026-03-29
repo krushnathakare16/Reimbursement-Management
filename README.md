@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Reimbursement Management System 🚀
 
-## Getting Started
+> **Odoo Hackathon Project Submission** <br>
+> A hyper-efficient, highly-automated system for managing company hierarchies, multi-level/conditional approval workflows, and AI-powered expense abstraction.
 
-First, run the development server:
+## 🛠️ The Tech Stack
+* **Framework:** Next.js 15 (App Router) + React 19
+* **Database:** SQLite (for zero-configuration judge environments) + Prisma ORM (v5 Stable)
+* **Auth:** NextAuth (Role-based: ADMIN, MANAGER, EMPLOYEE)
+* **Aesthetics:** Tailwind CSS + Lucide Icons (Glassmorphic dark design)
+* **AI Core:** Tesseract.js (WebAssembly Client-Side OCR)
 
+---
+
+## ⚡ Core Features Built
+1. **Instant Company Registration:** On signup, the system dynamically fetches global currencies from external APIs and isolates your new company ledger. 
+2. **AI Receipt Scanning:** Employees can simply drag an image of their dinner/flight receipt. Our **Client-Side Tesseract OCR Engine** instantly scans the pixels, extracts the total amount, and categorizes it with zero human typing required.
+3. **Multi-Level Approval Matrix:** Admins have a dedicated visual dashboard to configure sequence rules (e.g. `Step 1: HR` -> `Step 2: Finance`) or override rules (e.g., `If 60% of Assigneés approve --> Bypass Sequence`).
+
+---
+
+## 👨‍⚖️ Instructions for Judges (1-Minute Setup)
+
+We designed this repository so you don't have to fiddle with Docker or Cloud Databases to grade us! 
+
+**1. Install Dependencies**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**2. Synchronize the Local Database**
+*(This generates the local .db file and syncs our schema automatically)*
+```bash
+npx prisma db push --accept-data-loss
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**3. Run the App**
+```bash
+npm run dev
+```
+Navigate to `http://localhost:3000`. You can test our dynamic API by registering a **"New Company"**. You will automatically be granted the **ADMIN** permission to configure workflows and test the Application!
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+*Developed with focus, speed, and clean code for the Odoo Hackathon!*
