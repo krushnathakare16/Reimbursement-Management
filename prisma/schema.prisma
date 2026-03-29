@@ -1,13 +1,113 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
+}
+
+model Company {
+  id             String         @id @default(cuid())
+  name           String
+  baseCurrency   String         @default("USD")
+  
+  users          User[]
+  expenses       Expense[]
+  approvalRules  ApprovalRule[]
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?   // Simple password auth for hackathon demo
+  role          String    @default("EMPLOYEE") // ADMIN, MANAGER, EMPLOYEE
+  
+  companyId     String
+  company       Company   @relation(fields: [companyId], references: [id])
+  
+  // Manager Hierarchy
+  managerId     String?
+  manager       User?     @relation("UserManager", fields: [managerId], references: [id])
+  employees     User[]    @relation("UserManager")
+
+  submittedExpenses Expense[] @relation("ExpenseSubmitter")
+  approvalRequests  ApprovalRequest[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Expense {
+  id              String   @id @default(cuid())
+  amount          Float
+  currency        String   @default("USD")
+  
+  // Track amount converted to company's base currency
+  convertedAmount Float?   
+  
+  category        String
+  description     String
+  date            DateTime
+  
+  // OCR & Receipt Data
+  receiptUrl      String?  
+  merchantName    String?  
+  ocrRawText      String?  
+  
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  
+  submitterId     String
+  submitter       User     @relation("ExpenseSubmitter", fields: [submitterId], references: [id])
+
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id])
+
+  approvalRequests ApprovalRequest[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ApprovalRule {
+  id            String   @id @default(cuid())
+  
+  companyId     String
+  company       Company  @relation(fields: [companyId], references: [id])
+  
+  name          String
+  description   String?
+  
+  // We store complex rule setups in JSON to support anything the admin creates.
+  // E.g. { "type": "SEQUENCE", "steps": ["manager", "user_123"] } 
+  // or { "type": "PERCENTAGE", "threshold": 60, "role": "MANAGER"}
+  configJson    String   
+  
+  isActive      Boolean  @default(true)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ApprovalRequest {
+  id            String   @id @default(cuid())
+  
+  expenseId     String
+  expense       Expense  @relation(fields: [expenseId], references: [id])
+  
+  approverId    String
+  approver      User     @relation(fields: [approverId], references: [id])
+  
+  stepLevel     Int      @default(1) // E.g., step 1 = manager, step 2 = finance
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  comments      String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
