@@ -15,7 +15,7 @@ export default async function DashboardPage() {
       {/* Dynamic Render based on Role */}
       {session.user.role === "EMPLOYEE" && <EmployeeView session={session} />}
       
-      {session.user.role === "MANAGER" && <ManagerView session={session} />}
+      {(session.user.role === "MANAGER" || session.user.role === "FINANCE" || session.user.role === "CFO") && <ManagerView session={session} />}
       
       {session.user.role === "ADMIN" && (
         <div className="space-y-12">

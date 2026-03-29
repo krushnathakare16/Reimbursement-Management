@@ -1,12 +1,20 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google"; 
+import { Roboto, Open_Sans } from "next/font/google"; 
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 
-const montserrat = Montserrat({
+// Highly readable, classic Enterprise body font
+const openSans = Open_Sans({
   subsets: ["latin"],
-  variable: "--font-montserrat",
-  weight: ['300', '400', '500', '600', '700'],
+  variable: "--font-opensans",
+  display: 'swap',
+});
+
+// Structural, sharp, highly professional structural font for headings
+const roboto = Roboto({
+  weight: ['400', '500', '700', '900'],
+  subsets: ["latin"],
+  variable: "--font-roboto",
   display: 'swap',
 });
 
@@ -23,7 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${montserrat.variable} h-full antialiased`}
+      className={`${openSans.variable} ${roboto.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         <Providers>{children}</Providers>

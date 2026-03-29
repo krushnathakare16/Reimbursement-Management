@@ -1,13 +1,47 @@
 "use client";
 
-import { Save, Users, Zap, Percent, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { Save, Users, Zap, Percent, ShieldCheck, Trash2, Plus, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import UserManagement from "./UserManagement";
+import ManagerView from "./ManagerView";
 
 export default function AdminView({ session }: { session: any }) {
-  const [rules, setRules] = useState([
-    { id: 1, name: "HR", role: "Manager", type: "sequence" },
-    { id: 2, name: "Finance", role: "Finance", type: "sequence" },
-  ]);
+  const [rules, setRules] = useState<string[]>(["MANAGER", "FINANCE"]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [newRuleSelection, setNewRuleSelection] = useState("CFO");
+
+  useEffect(() => {
+    fetch('/api/admin/rules')
+      .then(res => res.json())
+      .then(data => {
+        if (data.rule) {
+           setRules(JSON.parse(data.rule.configJson).sequence);
+        }
+      });
+  }, []);
+
+  const handleAddStep = () => {
+    if (!rules.includes(newRuleSelection)) {
+      setRules([...rules, newRuleSelection]);
+    } else {
+      alert(`The ${newRuleSelection} phase is already in your global pipeline sequence!`);
+    }
+  };
+
+  const handleRemoveStep = (idx: number) => {
+    setRules(rules.filter((_, i) => i !== idx));
+  };
+
+  const saveConfiguration = async () => {
+    setIsSaving(true);
+    await fetch('/api/admin/rules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sequence: rules })
+    });
+    setIsSaving(false);
+    alert("Global Approval Structure saved securely deployed to Database!");
+  };
 
   return (
     <div className="w-full space-y-8">
@@ -29,16 +63,19 @@ export default function AdminView({ session }: { session: any }) {
           
           <div className="space-y-4 relative">
             {rules.map((rule, idx) => (
-              <div key={rule.id} className="relative z-10">
+              <div key={idx} className="relative z-10">
                 <div className="flex items-center gap-4 group">
                   <div className="w-8 h-8 rounded-full bg-blue-600/20 border border-blue-500/50 flex items-center justify-center text-blue-400 font-bold shrink-0">
                     {idx + 1}
                   </div>
-                  <div className="flex-1 bg-zinc-800/50 border border-zinc-700/50 p-4 rounded-xl flex justify-between items-center transition-all group-hover:border-zinc-600">
+                  <div className="flex-1 bg-zinc-800/50 border border-zinc-700/50 p-4 rounded-xl flex justify-between items-center transition-all group-hover:border-blue-500/30">
                     <div>
-                      <p className="text-white font-medium">{rule.name} Review</p>
-                      <p className="text-xs text-zinc-500">Assigned: {rule.role}</p>
+                      <p className="text-white font-medium">{rule} Review Phase</p>
+                      <p className="text-xs text-zinc-500">System Role Map: {rule}</p>
                     </div>
+                    <button onClick={() => handleRemoveStep(idx)} className="text-zinc-600 hover:text-red-500 transition-colors p-2">
+                       <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
                 {/* Connector Line */}
@@ -48,14 +85,27 @@ export default function AdminView({ session }: { session: any }) {
               </div>
             ))}
             
-            <div className="w-px h-6 bg-zinc-700 ml-4 my-1"></div>
-            
-            <button className="flex items-center gap-4 w-full group">
-              <div className="w-8 h-8 rounded-full bg-zinc-800 border-2 border-dashed border-zinc-600 flex items-center justify-center text-zinc-400 shrink-0 group-hover:border-blue-500 group-hover:text-blue-500 transition-colors">
-                +
+            <div className="flex items-center gap-4 w-full pt-2">
+              <div className="w-8 h-8 rounded-full bg-zinc-800/50 border border-zinc-700 flex items-center justify-center text-zinc-500 shrink-0">
+                <Plus className="w-4 h-4" />
               </div>
-              <span className="text-zinc-400 font-medium group-hover:text-blue-400 transition-colors">Add Next Approver Step</span>
-            </button>
+              <select 
+                value={newRuleSelection} 
+                onChange={(e) => setNewRuleSelection(e.target.value)} 
+                className="bg-zinc-900 border border-zinc-700 text-zinc-200 rounded-xl px-4 py-2.5 focus:border-blue-500 outline-none font-medium flex-1 max-w-[200px]"
+              >
+                <option value="MANAGER">Manager Level</option>
+                <option value="FINANCE">Finance Dept</option>
+                <option value="CFO">CFO / Director</option>
+                <option value="ADMIN">System Administrator</option>
+              </select>
+              <button 
+                onClick={handleAddStep} 
+                className="bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all border border-zinc-700"
+              >
+                Append Step
+              </button>
+            </div>
           </div>
         </div>
 
@@ -96,11 +146,20 @@ export default function AdminView({ session }: { session: any }) {
           </div>
 
           <div className="mt-8 flex justify-end">
-            <button className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg flex items-center gap-2 transition-all">
-              <Save className="w-5 h-5" /> Save Configuration
+            <button onClick={saveConfiguration} disabled={isSaving} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg flex items-center gap-2 transition-all">
+              {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save Global Configuration
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="pt-12 border-t border-zinc-800">
+        <UserManagement session={session} />
+      </div>
+
+      {/* Renders all broadcasted expenses for Global Admin Override / Approval */}
+      <div className="pt-12 border-t border-zinc-800">
+        <ManagerView session={session} />
       </div>
     </div>
   );
