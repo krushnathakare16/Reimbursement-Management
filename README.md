@@ -1,44 +1,79 @@
-# Reimbursement Management System 🚀
+# 🏢 Enterprise Reimbursement Management System
 
-> **Odoo Hackathon Project Submission** <br>
-> A hyper-efficient, highly-automated system for managing company hierarchies, multi-level/conditional approval workflows, and AI-powered expense abstraction.
+A production-ready Reimbursement Management application built for modern corporate hierarchies. This platform replaces error-prone manual spreadsheets with an intelligent, dynamic State Machine workflow that structurally routes expenses from Employee to Manager, Finance, and the CFO.
 
-## 🛠️ The Tech Stack
-* **Framework:** Next.js 15 (App Router) + React 19
-* **Database:** SQLite (for zero-configuration judge environments) + Prisma ORM (v5 Stable)
-* **Auth:** NextAuth (Role-based: ADMIN, MANAGER, EMPLOYEE)
-* **Aesthetics:** Tailwind CSS + Lucide Icons (Glassmorphic dark design)
-* **AI Core:** Tesseract.js (WebAssembly Client-Side OCR)
+Developed specifically for the **Odoo Hackathon**.
 
----
+## 🚀 Key Features
 
-## ⚡ Core Features Built
-1. **Instant Company Registration:** On signup, the system dynamically fetches global currencies from external APIs and isolates your new company ledger. 
-2. **AI Receipt Scanning:** Employees can simply drag an image of their dinner/flight receipt. Our **Client-Side Tesseract OCR Engine** instantly scans the pixels, extracts the total amount, and categorizes it with zero human typing required.
-3. **Multi-Level Approval Matrix:** Admins have a dedicated visual dashboard to configure sequence rules (e.g. `Step 1: HR` -> `Step 2: Finance`) or override rules (e.g., `If 60% of Assigneés approve --> Bypass Sequence`).
+* **Dynamic Upward Lineage (State Machine):** An interactive matrix that allows Admins to dynamically link employees to specific managers, and managers to Finance. The system algorithmically inherits this structure, passing tickets sequentially UP the chain.
+* **AI Browser-Side OCR:** Automatically scans uploaded merchant receipts and uses heuristic extraction to pre-fill the Amount, Category, Date, and Merchant Name natively in the browser.
+* **Live Global Currency Conversion:** Built with `exchangerate-api.com`. Employees can submit an expense in Japanese Yen or British Pounds, and the Admin portal automatically converts and logs it in the Company's base currency in real-time.
+* **Granular Identity Routing:** A universal `/login` portal powered by `NextAuth.js`. Users are automatically evaluated and routed to custom Employee, Manager, or Admin Dashboards based on their SQLite database roles.
+* **Interactive Approvals Dashboard:** Managers mathematically evaluate requests. Admin users can establish globally configured "Percent threshold limits" to dynamically alter what constitutes an Approval.
 
 ---
 
-## 👨‍⚖️ Instructions for Judges (1-Minute Setup)
+## 🛠️ Tech Stack
 
-We designed this repository so you don't have to fiddle with Docker or Cloud Databases to grade us! 
+* **Framework:** [Next.js 14+ (App Router)](https://nextjs.org/)
+* **Database / ORM:** SQLite via [Prisma ORM](https://www.prisma.io/)
+* **Authentication:** NextAuth.js
+* **Styling:** Tailwind CSS (Enterprise-grade Roboto/Open Sans typography)
+* **API Providers:** RestCountries (Currency List), ExchangeRate-API (Live Conversion), Tesseract.js (Optical Character Recognition)
 
-**1. Install Dependencies**
+---
+
+## ⚙️ Quick Start Guide (Local Development)
+
+Follow these steps to seamlessly spin up the project on your local machine.
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/krushnathakare16/Reimbursement-Management.git
+cd Reimbursement-Management
+```
+
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-**2. Synchronize the Local Database**
-*(This generates the local .db file and syncs our schema automatically)*
-```bash
-npx prisma db push --accept-data-loss
+### 3. Setup Environment Variables
+Create a new file named `.env` in the root directory and add the following keys:
+```env
+# SQLite Database Path
+DATABASE_URL="file:./dev.db"
+
+# NextAuth Secret (Generate any random string for local testing)
+NEXTAUTH_SECRET="odoo-hackathon-super-secret"
 ```
 
-**3. Run the App**
+### 4. Initialize the Database
+Generate the strict TypeScript definitions and push your SQLite relational schema constraints:
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+### 5. Launch the Application
 ```bash
 npm run dev
 ```
-Navigate to `http://localhost:3000`. You can test our dynamic API by registering a **"New Company"**. You will automatically be granted the **ADMIN** permission to configure workflows and test the Application!
+Navigate to `http://localhost:3000`. You will be automatically redirected to the `/login` portal.
 
 ---
-*Developed with focus, speed, and clean code for the Odoo Hackathon!*
+
+## 🧪 Testing the Application (User Guide)
+To test the full lifecycle of the sequential algorithm:
+
+1. **Register as Admin:** Sign up via the standard `Sign Up` page. Under the hood, the system sets the very first user as an `ADMIN` and creates your virtual Company.
+2. **Build the Organization:** Go to the Admin Dashboard. Click "Invite Associate" to generate three specific accounts:
+   - A `MANAGER`
+   - A `FINANCE` officer
+   - An `EMPLOYEE`
+3. **Map the Lineage:** Inside the Admin "Organization Users" table, use the interactive dropdowns in the `Reports To (Manager)` column to manually assign the Employee to the Manager, and the Manager to the Finance officer.
+4. **Submit & Watch it Sequence:** Log in as the Employee and submit an expense. Switch accounts mathematically up the chain, and watch the ticket structurally pass from Employee -> Manager -> Finance in real-time!
+
+## 📜 License
+This project is open-source and created for hackathon demonstration purposes.
